@@ -1,3 +1,2 @@
-This is just a test file.
-
-Project plan:
+Plans and update:
+- 

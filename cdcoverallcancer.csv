@@ -1,0 +1,83 @@
+"Notes","States","States Code",Count,Population,Age-Adjusted Rate,Age-Adjusted Rate Lower 95% Confidence Interval,Age-Adjusted Rate Upper 95% Confidence Interval
+,"Alabama","01",592920,114321844,450.7,449.6,451.9
+,"Alaska","02",65668,16787970,455.7,451.9,459.4
+,"Arizona","04",705158,151531818,410.1,409.1,411.1
+,"Arkansas","05",374928,69180566,467.0,465.5,468.5
+,"California","06",3882281,893593662,429.9,429.5,430.3
+,"Colorado","08",519096,121976497,422.3,421.1,423.4
+,"Connecticut","09",502793,85169975,497.7,496.3,499.1
+,"Delaware","10",129700,21577686,502.1,499.3,504.8
+,"District of Columbia","11",69106,14868354,471.7,468.2,475.3
+,"Florida","12",2926681,457004218,484.0,483.4,484.5
+,"Georgia","13",1089842,231144973,475.1,474.2,476.0
+,"Hawaii","15",162410,32642455,420.0,417.9,422.1
+,"Idaho","16",184123,37859278,458.8,456.7,460.9
+,"Illinois","17",1599012,305684510,483.0,482.2,483.8
+,"Indiana","18",810145,155367376,475.1,474.0,476.1
+,"Iowa","19",426873,73424095,490.8,489.3,492.3
+,"Kansas","20",350977,68069731,469.4,467.9,471.0
+,"Kentucky","21",613156,103608837,524.1,522.8,525.5
+,"Louisiana","22",577565,109234693,494.0,492.7,495.2
+,"Maine","23",209325,31897939,502.3,500.1,504.4
+,"Maryland","24",706678,139295784,466.0,464.9,467.1
+,"Massachusetts","25",880834,159755850,476.4,475.4,477.4
+,"Michigan","26",1333028,239855864,484.9,484.1,485.7
+,"Minnesota","27",675401,128078066,479.4,478.2,480.5
+,"Mississippi","28",316993,59020460,481.4,479.7,483.1
+,"Missouri","29",777512,142540036,473.1,472.1,474.2
+,"Montana","30",137914,23919772,472.3,469.8,474.9
+,"Nebraska","31",228967,44134802,468.4,466.5,470.4
+,"Nevada","32",292432,63687160,428.1,426.6,429.7
+,"New Hampshire","33",188568,31699964,499.6,497.3,501.9
+,"New Jersey","34",1218423,212816216,501.3,500.4,502.2
+,"New Mexico","35",216105,48317898,398.0,396.3,399.7
+,"New York","36",2611240,469524432,489.8,489.2,490.4
+,"North Carolina","37",1210059,226223006,480.8,479.9,481.6
+,"North Dakota","38",88081,16834226,462.9,459.8,466.0
+,"Ohio","39",1537581,277792549,476.2,475.4,476.9
+,"Oklahoma","40",462757,89703239,466.7,465.4,468.1
+,"Oregon","41",490417,92406203,453.9,452.7,455.2
+,"Pennsylvania","42",1859231,304512851,492.3,491.6,493.1
+,"Rhode Island","44",151970,25693495,497.8,495.3,500.4
+,"South Carolina","45",597945,110692455,467.5,466.3,468.7
+,"South Dakota","46",99338,18202344,470.6,467.7,473.6
+,"Tennessee","47",793687,152373291,460.4,459.3,461.4
+,"Texas","48",2540051,607883479,443.5,442.9,444.0
+,"Utah","49",230436,66705395,418.0,416.3,419.7
+,"Vermont","50",88397,15080619,475.1,471.9,478.3
+,"Virginia","51",896788,191580881,432.5,431.6,433.4
+,"Washington","53",828652,163294431,471.5,470.4,472.5
+,"West Virginia","54",279770,43772572,497.0,495.1,498.8
+,"Wisconsin","55",750840,136118581,477.8,476.7,478.9
+,"Wyoming","56",62251,13170425,424.1,420.7,427.5
+"Total",,,38344105,7409632823,467.2,467.0,467.3
+"---"
+"Dataset: United States and Puerto Rico Cancer Statistics, 1999-2022 Incidence"
+"Query Parameters:"
+"Cancer Sites: All Invasive Cancer Sites Combined"
+"Group By: States"
+"Show Totals: True"
+"Show Zero Values: False"
+"Show Suppressed: False"
+"Calculate Rates Per: 100,000"
+"Standard Population: 2000 U.S. Std. Million"
+"---"
+"Help: See http://wonder.cdc.gov/wonder/help/cancer-v2022.html for more information."
+"---"
+"Query Date: Jul 31, 2026 7:12:13 AM"
+"---"
+"Suggested Citation: United States Cancer Statistics - Incidence: 1999 - 2022, WONDER Online Database. United States Department"
+"of Health and Human Services, Centers for Disease Control and Prevention and National Cancer Institute; 2024 submission; 2025"
+"release. Accessed at http://wonder.cdc.gov/cancer-v2022.html on Jul 31, 2026 7:12:13 AM"
+"---"
+Caveats:
+"1. These states are missing data for the indicated year: Mississippi 1999-2002; South Dakota 1999-2000."
+"2. Data are from selected statewide and metropolitan area cancer registries that meet data quality criteria. Incidence data"
+"shown for the United States are diagnoses and populations from included registries only."
+"3. Information on primary site, behavior, and histology was coded according to the International Classification of Diseases for"
+"Oncology, Third Edition (ICD-O-3) and categorized according to the revised SEER recodes dated March 1, 2018, which define"
+"standard groupings of primary cancer sites."
+"4. For the 2005 year, the Census Bureau estimates that 203,937 persons were displaced from Alabama, Louisiana, Mississippi and"
+"Texas due to Hurricanes Katrina and Rita. CDC WONDER does not include the displaced persons in the 2005 population counts for"
+"these states, nor are these counts included in the summary populations for the affected division, regions or national"
+"population. However, the USCS web site does include these displaced persons in the national population figures for 2005."
