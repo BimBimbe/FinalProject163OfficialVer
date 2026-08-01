@@ -1,0 +1,6 @@
+q2_scatter_pesticide_overall.png: Scatter of overall rate vs pesticide intensity, colored by nitrate rate. Chosen to show raw relationship and how nitrate levels vary across points.
+
+q2_interaction_strata.png: Stratified means of overall rate vs pesticide intensity for low/med/high nitrate terciles — visualizes interaction effect.
+
+model3_residuals.png: Residual diagnostics for the combined model to inspect normality and heteroskedasticity.
+
