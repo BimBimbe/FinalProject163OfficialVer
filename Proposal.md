@@ -35,11 +35,7 @@ Overview
 We build one table with one row per state. Because the USGS pesticide data covers only the conterminous U.S., the analysis table has up to 49 rows (48 contiguous states + D.C.); Alaska and Hawaii are excluded from any pesticide-based question. Joins use state FIPS codes and 2-letter postal codes as keys. All analysis is done in Python with pandas and scikit-learn; figures use matplotlib and seaborn. Because the USGS and EPA files are large, we develop locally.
 Build variables:
 CDC
-1. Export four separate tab-delimited (.txt) tables from CDC WONDER using the same multi-year time period:
-- Overall cancer incidence
-- Hormone-related cancers
- - Colorectal cancer
-- Stomach cancer
+1. Export tab-delimited (.txt) datasets from CDC WONDER using the same multi-year time period. The overall, colorectal, and stomach cancer datasets are each obtained using a single CDC WONDER query. Hormone-related cancers are defined as breast, prostate, ovary, corpus uteri, and thyroid cancers. CDC WONDER does not provide a predefined hormone-related category, and a single combined query for these five sites was not obtained in time; instead, hormone_rate is constructed by pooling the raw Count and Population from each of the five separate cancer exports per state and computing pooled_count / pooled_population * 100,000. This is a crude (non age-adjusted) rate rather than an average of five age-adjusted rates, since age-adjusted rates cannot be validly averaged across cancer sites with different case counts and populations. This is a documented limitation relative to a true combined age-adjusted rate.
  2. For each export, import the file into pandas.
 3. Keep the State column and the Age-Adjusted Rate column, which reports cancer incidence per 100,000 population. If exported, retain the 95% confidence interval columns for documentation.
  4. Rename the Age-Adjusted Rate column according to the cancer type (for example, overall_rate, hormone_rate, colorectal_rate, and stomach_rate)
@@ -52,7 +48,7 @@ Import the tab-delimited files into pandas.
 Use the High Estimate pesticide values, as recommended in the project description.
 For each year, group counties by State FIPS and sum the estimated pesticide kilograms across all pesticide compounds and counties within each state. The USGS data provide pesticide estimates organized by compound, year, state FIPS, county FIPS, and kilograms (kg).
 Average each state’s total pesticide use across the five years (2013–2017).
-Divide the average pesticide total by the state’s agricultural land area (obtained from USDA Census of Agriculture) to calculate pesticide-use intensity (kg per unit agricultural land).
+Divide the average pesticide total by the state's agricultural land area to calculate pesticide-use intensity (kg per unit agricultural land). Agricultural land area comes from the USDA 2017 Census of Agriculture bulk data file (https://www.nass.usda.gov/datasets/qs.census2017.txt.gz). The census file has no single "total land in farms" row per state; it is reconstructed as the sum of its four official land-use components (cropland + pastureland/rangeland excluding cropland and woodland + woodland + other land), matching USDA's own published state totals (verified against Texas's published 2017 total of 127,036,184 acres).
 Exclude Alaska and Hawaii because the USGS dataset contains only the contiguous United States.
 EPA
 Download the SDWIS drinking-water violations table and the reference table containing contaminant codes.

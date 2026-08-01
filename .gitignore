@@ -1,3 +1,5 @@
 SDWA_VIOLATIONS_ENFORCEMENT.csv
 SDWA_PUB_WATER_SYSTEMS.csv
 pub_water_systems_filtered.csv
+__pycache__/
+qs.census2017.txt.gz
