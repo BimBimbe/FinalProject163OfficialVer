@@ -1,14 +1,10 @@
-"""Cleans the CDC WONDER cancer incidence exports into one state-level
-table with overall_rate, hormone_rate, colorectal_rate, and
-stomach_rate.
+"""Cleans the CDC WONDER cancer exports into one state-level table
+with overall_rate, hormone_rate, colorectal_rate, and stomach_rate.
 
-hormone_rate is not a single CDC WONDER query (CDC WONDER does not have
-a built-in "hormone-related cancers" category and a combined query was
-not obtained in time). Instead it is a pooled rate: total cases across
-breast, prostate, ovary, corpus uteri, and thyroid cancer divided by
-total population across those same five files, per state. This is a
-crude (non age-adjusted) rate, not an average of the five age-adjusted
-rates, since age-adjusted rates cannot be validly averaged.
+hormone_rate has no single CDC query behind it -- it's pooled cases
+over pooled population across five separate exports, since CDC has no
+built-in "hormone-related cancers" category. That makes it a crude
+rate, not an average of five age-adjusted rates.
 """
 import pandas as pd
 
@@ -27,9 +23,8 @@ HORMONE_PATHS = [
 
 
 def load_cdc_csv(path):
-    """Load a raw CDC WONDER export and drop the Total row and the
-    citation/caveat footer, which pandas otherwise reads as ragged
-    rows with no valid state FIPS code."""
+    """Load a raw CDC WONDER export, dropping the Total row and the
+    footer rows that have no valid state FIPS code."""
     df = pd.read_csv(path, on_bad_lines='skip', engine='python')
     df['States Code'] = pd.to_numeric(df['States Code'], errors='coerce')
     df = df.dropna(subset=['States Code'])

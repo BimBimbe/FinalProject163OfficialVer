@@ -1,10 +1,7 @@
 """Q1 combo-EDA: CDC hormone-related cancer incidence vs. USGS/USDA
-agricultural pesticide-use intensity, one row per contiguous state
-(District of Columbia excluded -- no agricultural pesticide data).
-
-Answers RQ1: is there a statistically significant positive association
-between a state's pesticide-use intensity and its hormone-related
-cancer incidence?
+pesticide-use intensity, one row per contiguous state (DC excluded --
+no pesticide data). Answers RQ1: does higher pesticide-use intensity
+associate with higher hormone-related cancer incidence?
 """
 import pandas as pd
 import matplotlib.pyplot as plt

@@ -61,10 +61,13 @@ def prepare_data(df, nitrate_col="nitrate_rate_per_100k_capita"):
                 df["avg_pesticide_kg"] / df["ag_land_acres"]
             )
         else:
-            # pesticides missing in this table; try the alternate table
+            # if pesticides missing in this table, try loading the
+            # alternate table
             alt = Path("output/state_table.csv")
             if alt.exists():
-                logging.info(f"Reloading {alt} which has pesticide fields")
+                logging.info(
+                    f"Reloading {alt} which contains pesticide fields"
+                )
                 df = pd.read_csv(alt)
             else:
                 raise KeyError(

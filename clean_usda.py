@@ -1,13 +1,9 @@
-"""Cleans the USDA 2017 Census of Agriculture bulk data file into
-state-level total agricultural land area (acres), used as the
-denominator for pesticide_intensity.
+"""Cleans the USDA 2017 Census of Agriculture bulk file into
+state-level total agricultural land area (acres), the denominator
+for pesticide_intensity.
 
-The census bulk file has no single row for total "land in farms" per
-state; it must be reconstructed as the sum of its four official
-components (cropland + pastureland/rangeland excluding cropland and
-woodland + woodland + other land). This matches USDA's own published
-state totals (verified against the 2017 Texas total of 127,036,184
-acres).
+The bulk file has no single "land in farms" row per state, so it's
+reconstructed as the sum of its four official land-use components.
 """
 import pandas as pd
 

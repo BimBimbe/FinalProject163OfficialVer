@@ -1,7 +1,5 @@
 """Assert-based tests for the four clean_*.py modules, run against
-small, hand-built fixture files rather than the real project data, so
-the cleaning/aggregation logic itself is checked -- not just whatever
-the real files happen to contain.
+small hand-built fixtures instead of the real project data.
 
 Usage: python test_clean.py
 """

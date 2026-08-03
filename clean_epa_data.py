@@ -1,9 +1,6 @@
-"""
-Filters the raw EPA SDWA downloads (SDWA_VIOLATIONS_ENFORCEMENT.csv,
-SDWA_PUB_WATER_SYSTEMS.csv, SDWA_REF_CODE_VALUES.csv) down to the
-nitrate/nitrite health-based MCL violations and per-state water-system
-counts needed for the project. The violations file is ~3.8GB, so it is
-read in chunks rather than all at once.
+"""Filters the raw EPA SDWA downloads down to nitrate/nitrite
+health-based MCL violations and per-state water-system counts.
+Reads the ~3.8GB violations file in chunks.
 """
 import pandas as pd
 
@@ -22,7 +19,7 @@ WATER_SYSTEMS_COLS = [
 
 
 def get_nitrate_contaminant_codes(ref_codes_path):
-    """Return the CONTAMINANT_CODE values for nitrate/nitrite."""
+    """Return nitrate/nitrite CONTAMINANT_CODE values."""
     ref = pd.read_csv(ref_codes_path)
     contaminants = ref[ref['VALUE_TYPE'] == 'CONTAMINANT_CODE']
     mask = contaminants['VALUE_DESCRIPTION'].str.contains(
@@ -36,8 +33,8 @@ def get_nitrate_contaminant_codes(ref_codes_path):
 def filter_nitrate_violations(
     violations_path, nitrate_codes, chunksize=500_000
 ):
-    """Stream the violations file and keep only health-based MCL
-    violations for nitrate/nitrite contaminants."""
+    """Stream the violations file, keeping only health-based MCL
+    nitrate/nitrite violations."""
     kept_chunks = []
     for chunk in pd.read_csv(
         violations_path, usecols=VIOLATIONS_COLS, chunksize=chunksize,
@@ -58,8 +55,8 @@ def filter_nitrate_violations(
 
 
 def load_latest_water_systems(water_systems_path):
-    """Load the public water systems table, keeping only the most
-    recent quarterly snapshot (rows repeat per PWSID across quarters)."""
+    """Load the water systems table, keeping only the latest
+    quarterly snapshot."""
     systems = pd.read_csv(
         water_systems_path, usecols=WATER_SYSTEMS_COLS, low_memory=False
     )

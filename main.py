@@ -1,17 +1,9 @@
-"""Merges the cleaned CDC, USGS, USDA, and EPA state-level tables into
-analysis tables (one row per state) and writes them to output/.
+"""Merges the cleaned CDC, USGS, USDA, and EPA tables into analysis
+tables (one row per state) and writes them to output/.
 
-build_state_table() requires pesticide data (USGS + USDA), so it
-excludes the District of Columbia: DC reports no county-level
-agricultural pesticide use and no agricultural land in the source
-files, since it has no farmland. That exclusion is correct for
-questions that use pesticide_intensity (Q1, Q2).
-
-Question 3 (colorectal/stomach cancer vs. nitrate violations) does not
-use pesticide data at all, so restricting it to the pesticide-only
-48-state table would drop DC for no reason relevant to that question.
-build_cdc_epa_table() merges CDC and EPA directly, keeping DC's valid
-cancer and nitrate data for a 49-row table.
+build_state_table() needs pesticide data, so DC drops out (no
+farmland, no pesticide use). build_cdc_epa_table() skips pesticide
+data entirely, so it keeps DC for Q3.
 """
 from clean_cdc import clean_cdc_data
 from clean_usgs import clean_usgs_data

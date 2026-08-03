@@ -1,11 +1,8 @@
-"""Cleans the USGS county-level pesticide-use files into one
-state-level average annual pesticide-use total (2013-2017).
+"""Cleans the USGS county-level pesticide-use files into a state-level
+average annual pesticide-use total (2013-2017).
 
-pesticide_intensity (avg_pesticide_kg divided by state agricultural
-land area) is not computed here: the USDA Census of Agriculture
-land-area data has not been obtained yet. avg_pesticide_kg is left as
-the raw average so this module still produces a usable, mergeable
-table in the meantime.
+Leaves avg_pesticide_kg as a raw average -- dividing by ag land area
+to get pesticide_intensity happens later, once merged with USDA.
 """
 import pandas as pd
 

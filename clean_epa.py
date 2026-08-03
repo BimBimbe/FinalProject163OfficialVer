@@ -1,8 +1,6 @@
-"""Builds a state-level nitrate/nitrite drinking-water violation rate
-from the outputs of clean_epa_data.py (nitrate_violations_filtered.csv,
-pub_water_systems_filtered.csv). Both normalizations from the proposal
-are computed: violations per public water system and violations per
-100,000 population served.
+"""Builds a state-level nitrate/nitrite violation rate from
+clean_epa_data.py's filtered outputs, normalized two ways: per public
+water system and per 100,000 population served.
 """
 import pandas as pd
 

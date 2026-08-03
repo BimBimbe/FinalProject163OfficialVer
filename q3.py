@@ -1,12 +1,9 @@
 """Q3 combo-EDA: CDC colorectal and stomach cancer incidence vs. EPA
-nitrate/nitrite drinking-water violation rate. Unlike Q1/Q2, this
-combo does not use pesticide data, so it draws on
-output/state_table_cdc_epa.csv (50 states + DC, including Alaska and
-Hawaii, which the pesticide-restricted table excludes).
+nitrate/nitrite violation rate. No pesticide join here, so it uses
+output/state_table_cdc_epa.csv (50 states + DC).
 
-Answers RQ3: are states with higher rates of health-based nitrate
-violations associated with higher colorectal and stomach cancer
-incidence?
+Answers RQ3: do higher nitrate violation rates associate with higher
+colorectal and stomach cancer incidence?
 """
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -83,13 +80,9 @@ def run_regression(df, cancer_col, nitrate_col=NITRATE_COL):
 
 
 def load_population():
-    """Relative state population size, reused from the raw CDC overall-
-    cancer export (already parsed by clean_cdc.load_cdc_csv). CDC WONDER
-    sums Population across every year in the query window, so this is
-    cumulative person-years, not a single-year population -- unusable
-    as a real population figure, but states rank correctly by size, so
-    it is used only to *rank* states for the small-state exclusion
-    below, never printed or reported as a population count."""
+    """Relative state population size for ranking only -- CDC's summed
+    person-years aren't a real population figure, but states still
+    rank correctly by size."""
     pop = load_cdc_csv(OVERALL_PATH)
     return pop[['state_fips', 'Population']]
 
