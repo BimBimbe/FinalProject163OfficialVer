@@ -21,7 +21,9 @@ PESTICIDE_PATHS = [
 
 
 def load_state_year_total(path):
-    df = pd.read_csv(path, sep='\t', usecols=['STATE_FIPS_CODE', 'EPEST_HIGH_KG'])
+    df = pd.read_csv(
+        path, sep='\t', usecols=['STATE_FIPS_CODE', 'EPEST_HIGH_KG']
+    )
     df['STATE_FIPS_CODE'] = df['STATE_FIPS_CODE'].astype(str).str.zfill(2)
     return df.groupby('STATE_FIPS_CODE', as_index=False)['EPEST_HIGH_KG'].sum()
 
@@ -30,7 +32,9 @@ def clean_usgs_data(paths=PESTICIDE_PATHS):
     yearly_totals = pd.concat(
         [load_state_year_total(p) for p in paths], ignore_index=True
     )
-    avg = yearly_totals.groupby('STATE_FIPS_CODE', as_index=False)['EPEST_HIGH_KG'].mean()
+    avg = yearly_totals.groupby(
+        'STATE_FIPS_CODE', as_index=False
+    )['EPEST_HIGH_KG'].mean()
     avg = avg.rename(columns={
         'STATE_FIPS_CODE': 'state_fips', 'EPEST_HIGH_KG': 'avg_pesticide_kg'
     })

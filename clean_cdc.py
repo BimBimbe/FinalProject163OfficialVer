@@ -61,10 +61,19 @@ def clean_cdc_data():
     stomach = load_rate_column(STOMACH_PATH, 'stomach_rate')
     hormone = load_pooled_hormone_rate(HORMONE_PATHS)
 
-    cdc = STATE_LOOKUP.merge(overall[['state_fips', 'overall_rate']], on='state_fips', how='left')
-    cdc = cdc.merge(hormone[['state_fips', 'hormone_rate']], on='state_fips', how='left')
-    cdc = cdc.merge(colorectal[['state_fips', 'colorectal_rate']], on='state_fips', how='left')
-    cdc = cdc.merge(stomach[['state_fips', 'stomach_rate']], on='state_fips', how='left')
+    cdc = STATE_LOOKUP.merge(
+        overall[['state_fips', 'overall_rate']], on='state_fips', how='left'
+    )
+    cdc = cdc.merge(
+        hormone[['state_fips', 'hormone_rate']], on='state_fips', how='left'
+    )
+    cdc = cdc.merge(
+        colorectal[['state_fips', 'colorectal_rate']],
+        on='state_fips', how='left'
+    )
+    cdc = cdc.merge(
+        stomach[['state_fips', 'stomach_rate']], on='state_fips', how='left'
+    )
     return cdc
 
 

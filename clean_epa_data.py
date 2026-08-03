@@ -33,7 +33,9 @@ def get_nitrate_contaminant_codes(ref_codes_path):
     return set(matches['VALUE_CODE'])
 
 
-def filter_nitrate_violations(violations_path, nitrate_codes, chunksize=500_000):
+def filter_nitrate_violations(
+    violations_path, nitrate_codes, chunksize=500_000
+):
     """Stream the violations file and keep only health-based MCL
     violations for nitrate/nitrite contaminants."""
     kept_chunks = []

@@ -12,9 +12,11 @@ VIOLATIONS_PATH = 'nitrate_violations_filtered.csv'
 WATER_SYSTEMS_PATH = 'pub_water_systems_filtered.csv'
 
 
-def clean_epa_data():
-    violations = pd.read_csv(VIOLATIONS_PATH)
-    systems = pd.read_csv(WATER_SYSTEMS_PATH)
+def clean_epa_data(
+    violations_path=VIOLATIONS_PATH, systems_path=WATER_SYSTEMS_PATH
+):
+    violations = pd.read_csv(violations_path)
+    systems = pd.read_csv(systems_path)
 
     violations_with_state = violations.merge(
         systems[['PWSID', 'STATE_CODE']], on='PWSID', how='inner'
@@ -32,7 +34,9 @@ def clean_epa_data():
 
     epa = system_stats.merge(violation_counts, on='STATE_CODE', how='left')
     epa['violation_count'] = epa['violation_count'].fillna(0)
-    epa['nitrate_rate_per_system'] = epa['violation_count'] / epa['system_count']
+    epa['nitrate_rate_per_system'] = (
+        epa['violation_count'] / epa['system_count']
+    )
     epa['nitrate_rate_per_100k_capita'] = (
         epa['violation_count'] / epa['population_served'] * 100_000
     )

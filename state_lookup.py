@@ -29,4 +29,6 @@ _STATES = [
     ('Wisconsin', '55', 'WI'), ('Wyoming', '56', 'WY'),
 ]
 
-STATE_LOOKUP = pd.DataFrame(_STATES, columns=['state', 'state_fips', 'state_postal'])
+STATE_LOOKUP = pd.DataFrame(
+    _STATES, columns=['state', 'state_fips', 'state_postal']
+)

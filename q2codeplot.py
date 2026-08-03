@@ -1,12 +1,12 @@
 """Q2 analysis script
 
 Creates interaction term between pesticide intensity and nitrate rate,
-fits three regression models, computes R^2 and 5-fold CV, and saves plots.
+fits three regression models, computes R^2 and 5-fold CV, and saves
+plots.
 
 Usage: python q2codeplot.py
 """
 from pathlib import Path
-import sys
 import logging
 
 try:
@@ -17,8 +17,11 @@ try:
     from sklearn.model_selection import KFold, cross_val_score
     from sklearn.linear_model import LinearRegression
     import statsmodels.api as sm
-except Exception as e:
-    print("Missing required packages. Install with: pip install pandas numpy matplotlib seaborn scikit-learn statsmodels")
+except Exception:
+    print(
+        "Missing required packages. Install with: pip install pandas "
+        "numpy matplotlib seaborn scikit-learn statsmodels"
+    )
     raise
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
@@ -35,7 +38,10 @@ def load_state_table():
         if p.exists():
             logging.info(f"Loading {p}")
             return pd.read_csv(p)
-    raise FileNotFoundError("Could not find a state table CSV. Expected one of: " + ",".join(str(x) for x in candidates))
+    raise FileNotFoundError(
+        "Could not find a state table CSV. Expected one of: "
+        + ",".join(str(x) for x in candidates)
+    )
 
 
 def prepare_data(df, nitrate_col="nitrate_rate_per_100k_capita"):
@@ -46,17 +52,25 @@ def prepare_data(df, nitrate_col="nitrate_rate_per_100k_capita"):
     # ensure pesticide_intensity exists; compute if we have components
     if "pesticide_intensity" not in df.columns:
         if "avg_pesticide_kg" in df.columns and "ag_land_acres" in df.columns:
-            logging.info("Computing pesticide_intensity from avg_pesticide_kg / ag_land_acres")
+            logging.info(
+                "Computing pesticide_intensity from "
+                "avg_pesticide_kg / ag_land_acres"
+            )
             df = df.copy()
-            df["pesticide_intensity"] = df["avg_pesticide_kg"] / df["ag_land_acres"]
+            df["pesticide_intensity"] = (
+                df["avg_pesticide_kg"] / df["ag_land_acres"]
+            )
         else:
-            # if pesticides missing in this table, try loading the alternate table
+            # pesticides missing in this table; try the alternate table
             alt = Path("output/state_table.csv")
             if alt.exists():
-                logging.info(f"Reloading {alt} which contains pesticide fields")
+                logging.info(f"Reloading {alt} which has pesticide fields")
                 df = pd.read_csv(alt)
             else:
-                raise KeyError("Missing pesticide_intensity and unable to compute it from available columns")
+                raise KeyError(
+                    "Missing pesticide_intensity and unable to compute "
+                    "it from available columns"
+                )
 
     cols = ["overall_rate", "pesticide_intensity", nitrate_col]
     missing = [c for c in cols if c not in df.columns]
@@ -75,7 +89,9 @@ def fit_models(data):
     y = data["overall_rate"].values
     X1 = sm.add_constant(data[["pesticide_intensity"]])
     X2 = sm.add_constant(data[["nitrate_rate"]])
-    X3 = sm.add_constant(data[["pesticide_intensity", "nitrate_rate", "interaction"]])
+    X3 = sm.add_constant(
+        data[["pesticide_intensity", "nitrate_rate", "interaction"]]
+    )
 
     m1 = sm.OLS(y, X1).fit()
     m2 = sm.OLS(y, X2).fit()
@@ -94,9 +110,15 @@ def cv_scores(data, n_splits=5):
 
 def plot_scatter(data, outdir):
     outdir.mkdir(parents=True, exist_ok=True)
-    plt.figure(figsize=(8,6))
-    sns.scatterplot(x="pesticide_intensity", y="overall_rate", hue="nitrate_rate", data=data, palette="viridis")
-    sns.regplot(x="pesticide_intensity", y="overall_rate", data=data, scatter=False, color="red")
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(
+        x="pesticide_intensity", y="overall_rate", hue="nitrate_rate",
+        data=data, palette="viridis"
+    )
+    sns.regplot(
+        x="pesticide_intensity", y="overall_rate", data=data,
+        scatter=False, color="red"
+    )
     plt.title("Overall rate vs Pesticide intensity (colored by nitrate rate)")
     plt.xlabel("Pesticide intensity")
     plt.ylabel("Overall rate")
@@ -111,10 +133,18 @@ def plot_interaction(data, outdir):
     outdir.mkdir(parents=True, exist_ok=True)
     # create tercile bins of nitrate_rate
     data = data.copy()
-    data["nitrate_bin"] = pd.qcut(data["nitrate_rate"], q=3, labels=["low", "med", "high"])
-    plt.figure(figsize=(8,6))
-    sns.lineplot(x="pesticide_intensity", y="overall_rate", hue="nitrate_bin", data=data, estimator="mean")
-    plt.title("Interaction: overall vs pesticide intensity stratified by nitrate terciles")
+    data["nitrate_bin"] = pd.qcut(
+        data["nitrate_rate"], q=3, labels=["low", "med", "high"]
+    )
+    plt.figure(figsize=(8, 6))
+    sns.lineplot(
+        x="pesticide_intensity", y="overall_rate", hue="nitrate_bin",
+        data=data, estimator="mean"
+    )
+    plt.title(
+        "Interaction: overall vs pesticide intensity stratified by "
+        "nitrate terciles"
+    )
     plt.xlabel("Pesticide intensity")
     plt.ylabel("Overall rate")
     p = outdir / "q2_interaction_strata.png"
@@ -128,15 +158,15 @@ def plot_residuals(model, data, outdir, name="model3"):
     fitted = model.fittedvalues
     resid = model.resid
 
-    plt.figure(figsize=(8,4))
-    plt.subplot(1,2,1)
+    plt.figure(figsize=(8, 4))
+    plt.subplot(1, 2, 1)
     plt.scatter(fitted, resid)
     plt.axhline(0, color='red', linestyle='--')
     plt.xlabel('Fitted')
     plt.ylabel('Residuals')
     plt.title('Residuals vs Fitted')
 
-    plt.subplot(1,2,2)
+    plt.subplot(1, 2, 2)
     sm.qqplot(resid, line='s', ax=plt.gca())
     plt.title('QQ plot')
 
@@ -151,7 +181,9 @@ def influential_points(model, data, outpath):
     cooks = infl.cooks_distance[0]
     df = data.copy()
     df["cooks_d"] = cooks
-    df.sort_values("cooks_d", ascending=False).head(20).to_csv(outpath, index=False)
+    df.sort_values("cooks_d", ascending=False).head(20).to_csv(
+        outpath, index=False
+    )
     logging.info(f"Saved top influential points to {outpath}")
 
 
@@ -164,7 +196,11 @@ def save_model_scores(models, cv_scores_arr, outpath):
             "n_obs": int(m.nobs)
         })
     # add CV results summary for combined model
-    rows.append({"model": "model3_cv_mean", "r_squared": float(np.mean(cv_scores_arr)), "n_obs": len(cv_scores_arr)})
+    rows.append({
+        "model": "model3_cv_mean",
+        "r_squared": float(np.mean(cv_scores_arr)),
+        "n_obs": len(cv_scores_arr)
+    })
     pd.DataFrame(rows).to_csv(outpath, index=False)
     logging.info(f"Saved model scores to {outpath}")
 
@@ -172,9 +208,20 @@ def save_model_scores(models, cv_scores_arr, outpath):
 def write_captions(outdir):
     outdir.mkdir(parents=True, exist_ok=True)
     captions = {
-        "q2_scatter_pesticide_overall.png": "Scatter of overall rate vs pesticide intensity, colored by nitrate rate. Chosen to show raw relationship and how nitrate levels vary across points.",
-        "q2_interaction_strata.png": "Stratified means of overall rate vs pesticide intensity for low/med/high nitrate terciles — visualizes interaction effect.",
-        "model3_residuals.png": "Residual diagnostics for the combined model to inspect normality and heteroskedasticity.",
+        "q2_scatter_pesticide_overall.png": (
+            "Scatter of overall rate vs pesticide intensity, colored by "
+            "nitrate rate. Chosen to show raw relationship and how "
+            "nitrate levels vary across points."
+        ),
+        "q2_interaction_strata.png": (
+            "Stratified means of overall rate vs pesticide intensity "
+            "for low/med/high nitrate terciles — visualizes "
+            "interaction effect."
+        ),
+        "model3_residuals.png": (
+            "Residual diagnostics for the combined model to inspect "
+            "normality and heteroskedasticity."
+        ),
     }
     with open(outdir / "plot_captions.txt", "w", encoding="utf-8") as f:
         for k, v in captions.items():
@@ -192,7 +239,9 @@ def main():
     m1, m2, m3 = fit_models(data)
     scores = cv_scores(data, n_splits=5)
 
-    models = {"model1_pesticide": m1, "model2_nitrate": m2, "model3_combined": m3}
+    models = {
+        "model1_pesticide": m1, "model2_nitrate": m2, "model3_combined": m3
+    }
     save_model_scores(models, scores, csv_out)
     influential_points(m3, data, infl_out)
 
@@ -205,7 +254,10 @@ def main():
     print(m1.summary())
     print(m2.summary())
     print(m3.summary())
-    print(f"5-fold CV R^2 scores (model3 features): mean={scores.mean():.4f}, std={scores.std():.4f}")
+    print(
+        f"5-fold CV R^2 scores (model3 features): "
+        f"mean={scores.mean():.4f}, std={scores.std():.4f}"
+    )
 
 
 if __name__ == "__main__":

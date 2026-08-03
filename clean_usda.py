@@ -23,7 +23,9 @@ COLS = ['SHORT_DESC', 'DOMAIN_DESC', 'AGG_LEVEL_DESC', 'STATE_ALPHA', 'VALUE']
 
 def clean_usda_data(path=CENSUS_PATH, chunksize=500_000):
     matches = []
-    for chunk in pd.read_csv(path, sep='\t', usecols=COLS, chunksize=chunksize, low_memory=False):
+    for chunk in pd.read_csv(
+        path, sep='\t', usecols=COLS, chunksize=chunksize, low_memory=False
+    ):
         mask = (
             chunk['SHORT_DESC'].isin(LAND_COMPONENTS)
             & (chunk['AGG_LEVEL_DESC'] == 'STATE')
@@ -32,10 +34,13 @@ def clean_usda_data(path=CENSUS_PATH, chunksize=500_000):
         matches.append(chunk[mask])
     result = pd.concat(matches, ignore_index=True)
     result['VALUE'] = pd.to_numeric(
-        result['VALUE'].astype(str).str.replace(',', '', regex=False), errors='coerce'
+        result['VALUE'].astype(str).str.replace(',', '', regex=False),
+        errors='coerce'
     )
     totals = result.groupby('STATE_ALPHA', as_index=False)['VALUE'].sum()
-    return totals.rename(columns={'STATE_ALPHA': 'state_postal', 'VALUE': 'ag_land_acres'})
+    return totals.rename(
+        columns={'STATE_ALPHA': 'state_postal', 'VALUE': 'ag_land_acres'}
+    )
 
 
 def main():
