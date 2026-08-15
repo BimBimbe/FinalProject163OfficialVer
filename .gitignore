@@ -2,3 +2,4 @@ SDWA_VIOLATIONS_ENFORCEMENT.csv
 SDWA_PUB_WATER_SYSTEMS.csv
 __pycache__/
 qs.census2017.txt.gz
+.DS_Store
