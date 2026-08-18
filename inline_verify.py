@@ -16,7 +16,7 @@ print("="*80)
 state_table = pd.read_csv('output/state_table.csv')
 state_table_cdc_epa = pd.read_csv('output/state_table_cdc_epa.csv')
 
-print(f"\nData loaded:")
+print("\nData loaded:")
 print(f"  state_table.csv: {state_table.shape[0]} rows")
 print(f"  state_table_cdc_epa.csv: {state_table_cdc_epa.shape[0]} rows")
 
@@ -49,14 +49,24 @@ q1_pesticide_med = q1_df['pesticide_intensity'].median()
 q1_pesticide_q3 = q1_df['pesticide_intensity'].quantile(0.75)
 q1_pesticide_max = q1_df['pesticide_intensity'].max()
 
-print(f"\n>>> Q1 KEY DESCRIPTIVE STATS:")
-print(f"hormone_rate     mean={q1_hormone_mean:.2f} (report: 52.67), max={q1_hormone_max:.2f} (report: 61.37)")
-print(f"pesticide_intensity mean={q1_pesticide_mean:.3f} (report: 0.706), max={q1_pesticide_max:.3f}")
+print("\n>>> Q1 KEY DESCRIPTIVE STATS:")
+print(
+    f"hormone_rate     mean={q1_hormone_mean:.2f} (report: 52.67), "
+    f"max={q1_hormone_max:.2f} (report: 61.37)"
+)
+print(
+    f"pesticide_intensity mean={q1_pesticide_mean:.3f} (report: 0.706), "
+    f"max={q1_pesticide_max:.3f}"
+)
 
-r, p_pearson = stats.pearsonr(q1_df['pesticide_intensity'], q1_df['hormone_rate'])
-rho, p_spearman = stats.spearmanr(q1_df['pesticide_intensity'], q1_df['hormone_rate'])
+r, p_pearson = stats.pearsonr(
+    q1_df['pesticide_intensity'], q1_df['hormone_rate']
+)
+rho, p_spearman = stats.spearmanr(
+    q1_df['pesticide_intensity'], q1_df['hormone_rate']
+)
 
-print(f"\n>>> Q1 CORRELATIONS:")
+print("\n>>> Q1 CORRELATIONS:")
 print(f"Pearson r={r:.4f}, p={p_pearson:.4f}")
 print(f"Spearman rho={rho:.4f}, p={p_spearman:.4f}")
 
@@ -64,7 +74,10 @@ x = q1_df[['pesticide_intensity']].values
 y = q1_df['hormone_rate'].values
 q1_model = LinearRegression().fit(x, y)
 q1_r2 = q1_model.score(x, y)
-print(f"Regression: slope={q1_model.coef_[0]:.4f}, intercept={q1_model.intercept_:.4f}, R²={q1_r2:.4f}")
+print(
+    f"Regression: slope={q1_model.coef_[0]:.4f}, "
+    f"intercept={q1_model.intercept_:.4f}, R²={q1_r2:.4f}"
+)
 
 # ============================================================================
 # Q2: OVERALL RATE vs PESTICIDE + NITRATE (48 states)
@@ -73,7 +86,9 @@ print("\n" + "="*80)
 print("Q2 ANALYSIS: Overall rate vs Pesticide + Nitrate")
 print("="*80)
 
-q2_df = state_table[['overall_rate', 'pesticide_intensity', 'nitrate_rate_per_system']].dropna()
+q2_df = state_table[
+    ['overall_rate', 'pesticide_intensity', 'nitrate_rate_per_system']
+].dropna()
 q2_df = q2_df.replace([np.inf, -np.inf], np.nan).dropna()
 print(f"Q2 rows (no missing): {len(q2_df)}")
 
@@ -104,10 +119,19 @@ q2_nitrate_med = q2_df['nitrate_rate_per_system'].median()
 q2_nitrate_q3 = q2_df['nitrate_rate_per_system'].quantile(0.75)
 q2_nitrate_max = q2_df['nitrate_rate_per_system'].max()
 
-print(f"\n>>> Q2 KEY DESCRIPTIVE STATS:")
-print(f"overall_rate     mean={q2_overall_mean:.2f} (report: 469.24), max={q2_overall_max:.2f}")
-print(f"pesticide_intensity mean={q2_pesticide_mean:.3f} (report: 0.706), max={q2_pesticide_max:.3f}")
-print(f"nitrate_rate (per-system) mean={q2_nitrate_mean:.4f} (report: 0.887), max={q2_nitrate_max:.4f}")
+print("\n>>> Q2 KEY DESCRIPTIVE STATS:")
+print(
+    f"overall_rate     mean={q2_overall_mean:.2f} (report: 469.24), "
+    f"max={q2_overall_max:.2f}"
+)
+print(
+    f"pesticide_intensity mean={q2_pesticide_mean:.3f} (report: 0.706), "
+    f"max={q2_pesticide_max:.3f}"
+)
+print(
+    f"nitrate_rate (per-system) mean={q2_nitrate_mean:.4f} "
+    f"(report: 0.887), max={q2_nitrate_max:.4f}"
+)
 
 # Fit all three models
 y = q2_df['overall_rate'].values
@@ -115,20 +139,43 @@ X1 = sm.add_constant(q2_df[['pesticide_intensity']])
 X2 = sm.add_constant(q2_df[['nitrate_rate_per_system']])
 
 q2_df_copy = q2_df.copy()
-q2_df_copy['interaction'] = q2_df_copy['pesticide_intensity'] * q2_df_copy['nitrate_rate_per_system']
-X3 = sm.add_constant(q2_df_copy[['pesticide_intensity', 'nitrate_rate_per_system', 'interaction']])
+q2_df_copy['interaction'] = (
+    q2_df_copy['pesticide_intensity'] * q2_df_copy['nitrate_rate_per_system']
+)
+X3 = sm.add_constant(
+    q2_df_copy[
+        ['pesticide_intensity', 'nitrate_rate_per_system', 'interaction']
+    ]
+)
 
 m1 = sm.OLS(y, X1).fit()
 m2 = sm.OLS(y, X2).fit()
 m3 = sm.OLS(y, X3).fit()
 
-print(f"\n>>> Q2 MODEL RESULTS:")
-print(f"Model 1 (pesticide only): R² = {m1.rsquared:.4f}, slope = {m1.params['pesticide_intensity']:.4f}, p = {m1.pvalues['pesticide_intensity']:.4f}")
-print(f"Model 2 (nitrate only): R² = {m2.rsquared:.4f}, slope = {m2.params['nitrate_rate_per_system']:.4f}, p = {m2.pvalues['nitrate_rate_per_system']:.4f}")
+print("\n>>> Q2 MODEL RESULTS:")
+print(
+    f"Model 1 (pesticide only): R² = {m1.rsquared:.4f}, "
+    f"slope = {m1.params['pesticide_intensity']:.4f}, "
+    f"p = {m1.pvalues['pesticide_intensity']:.4f}"
+)
+print(
+    f"Model 2 (nitrate only): R² = {m2.rsquared:.4f}, "
+    f"slope = {m2.params['nitrate_rate_per_system']:.4f}, "
+    f"p = {m2.pvalues['nitrate_rate_per_system']:.4f}"
+)
 print(f"Model 3 (combined): R² = {m3.rsquared:.4f}")
-print(f"  pesticide: slope = {m3.params['pesticide_intensity']:.4f}, p = {m3.pvalues['pesticide_intensity']:.4f}")
-print(f"  nitrate: slope = {m3.params['nitrate_rate_per_system']:.4f}, p = {m3.pvalues['nitrate_rate_per_system']:.4f}")
-print(f"  interaction: slope = {m3.params['interaction']:.4f}, p = {m3.pvalues['interaction']:.4f}")
+print(
+    f"  pesticide: slope = {m3.params['pesticide_intensity']:.4f}, "
+    f"p = {m3.pvalues['pesticide_intensity']:.4f}"
+)
+print(
+    f"  nitrate: slope = {m3.params['nitrate_rate_per_system']:.4f}, "
+    f"p = {m3.pvalues['nitrate_rate_per_system']:.4f}"
+)
+print(
+    f"  interaction: slope = {m3.params['interaction']:.4f}, "
+    f"p = {m3.pvalues['interaction']:.4f}"
+)
 
 # ============================================================================
 # Q3: COLORECTAL & STOMACH vs NITRATE (51 states + DC)
@@ -137,7 +184,9 @@ print("\n" + "="*80)
 print("Q3 ANALYSIS: Colorectal & Stomach rates vs Nitrate")
 print("="*80)
 
-q3_df = state_table_cdc_epa[['colorectal_rate', 'stomach_rate', 'nitrate_rate_per_system']].dropna()
+q3_df = state_table_cdc_epa[
+    ['colorectal_rate', 'stomach_rate', 'nitrate_rate_per_system']
+].dropna()
 print(f"Q3 rows (no missing): {len(q3_df)}")
 
 print("\nSummary statistics:")
@@ -159,19 +208,29 @@ q3_stomach_med = q3_df['stomach_rate'].median()
 q3_stomach_q3 = q3_df['stomach_rate'].quantile(0.75)
 q3_stomach_max = q3_df['stomach_rate'].max()
 
-print(f"\n>>> Q3 KEY DESCRIPTIVE STATS:")
-print(f"colorectal_rate mean={q3_colorectal_mean:.2f} (report: 43.32), max={q3_colorectal_max:.2f}")
-print(f"stomach_rate    mean={q3_stomach_mean:.2f} (report: 6.40), max={q3_stomach_max:.2f}")
+print("\n>>> Q3 KEY DESCRIPTIVE STATS:")
+print(
+    f"colorectal_rate mean={q3_colorectal_mean:.2f} (report: 43.32), "
+    f"max={q3_colorectal_max:.2f}"
+)
+print(
+    f"stomach_rate    mean={q3_stomach_mean:.2f} (report: 6.40), "
+    f"max={q3_stomach_max:.2f}"
+)
 
-print(f"\n>>> Q3 CORRELATIONS & REGRESSIONS:")
+print("\n>>> Q3 CORRELATIONS & REGRESSIONS:")
 for cancer_col in ['colorectal_rate', 'stomach_rate']:
-    r, p_pearson = stats.pearsonr(q3_df['nitrate_rate_per_system'], q3_df[cancer_col])
-    rho, p_spearman = stats.spearmanr(q3_df['nitrate_rate_per_system'], q3_df[cancer_col])
+    r, p_pearson = stats.pearsonr(
+        q3_df['nitrate_rate_per_system'], q3_df[cancer_col]
+    )
+    rho, p_spearman = stats.spearmanr(
+        q3_df['nitrate_rate_per_system'], q3_df[cancer_col]
+    )
     x = q3_df[['nitrate_rate_per_system']].values
     y = q3_df[cancer_col].values
     q3_model = LinearRegression().fit(x, y)
     r2 = q3_model.score(x, y)
-    
+
     print(f"\n{cancer_col}:")
     print(f"  Pearson r={r:.4f}, p={p_pearson:.4f}")
     print(f"  Spearman rho={rho:.4f}, p={p_spearman:.4f}")
@@ -185,14 +244,38 @@ print("CORRECTED SUMMARY STATISTICS TABLE FOR YOUR REPORT")
 print("="*80)
 
 table_data = {
-    'Variable': ['hormone_rate', 'pesticide_intensity', 'overall_rate', 'nitrate_rate', 'colorectal_rate', 'stomach_rate'],
-    'Mean': [q1_hormone_mean, q1_pesticide_mean, q2_overall_mean, q2_nitrate_mean, q3_colorectal_mean, q3_stomach_mean],
-    'SD': [q1_hormone_std, q1_pesticide_std, q2_overall_std, q2_nitrate_std, q3_colorectal_std, q3_stomach_std],
-    'Min': [q1_hormone_min, q1_pesticide_min, q2_overall_min, q2_nitrate_min, q3_colorectal_min, q3_stomach_min],
-    'Q1': [q1_hormone_q1, q1_pesticide_q1, q2_overall_q1, q2_nitrate_q1, q3_colorectal_q1, q3_stomach_q1],
-    'Median': [q1_hormone_med, q1_pesticide_med, q2_overall_med, q2_nitrate_med, q3_colorectal_med, q3_stomach_med],
-    'Q3': [q1_hormone_q3, q1_pesticide_q3, q2_overall_q3, q2_nitrate_q3, q3_colorectal_q3, q3_stomach_q3],
-    'Max': [q1_hormone_max, q1_pesticide_max, q2_overall_max, q2_nitrate_max, q3_colorectal_max, q3_stomach_max],
+    'Variable': [
+        'hormone_rate', 'pesticide_intensity', 'overall_rate',
+        'nitrate_rate', 'colorectal_rate', 'stomach_rate',
+    ],
+    'Mean': [
+        q1_hormone_mean, q1_pesticide_mean, q2_overall_mean,
+        q2_nitrate_mean, q3_colorectal_mean, q3_stomach_mean,
+    ],
+    'SD': [
+        q1_hormone_std, q1_pesticide_std, q2_overall_std,
+        q2_nitrate_std, q3_colorectal_std, q3_stomach_std,
+    ],
+    'Min': [
+        q1_hormone_min, q1_pesticide_min, q2_overall_min,
+        q2_nitrate_min, q3_colorectal_min, q3_stomach_min,
+    ],
+    'Q1': [
+        q1_hormone_q1, q1_pesticide_q1, q2_overall_q1,
+        q2_nitrate_q1, q3_colorectal_q1, q3_stomach_q1,
+    ],
+    'Median': [
+        q1_hormone_med, q1_pesticide_med, q2_overall_med,
+        q2_nitrate_med, q3_colorectal_med, q3_stomach_med,
+    ],
+    'Q3': [
+        q1_hormone_q3, q1_pesticide_q3, q2_overall_q3,
+        q2_nitrate_q3, q3_colorectal_q3, q3_stomach_q3,
+    ],
+    'Max': [
+        q1_hormone_max, q1_pesticide_max, q2_overall_max,
+        q2_nitrate_max, q3_colorectal_max, q3_stomach_max,
+    ],
 }
 
 summary_table = pd.DataFrame(table_data)
@@ -208,7 +291,11 @@ print("="*80)
 print("\n| Variable | x̄ | SD | min | Q1 | median | Q3 | max |")
 print("|---|---:|---:|---:|---:|---:|---:|---:|")
 for _, row in summary_table.iterrows():
-    print(f"| {row['Variable']} | {row['Mean']:.2f} | {row['SD']:.2f} | {row['Min']:.2f} | {row['Q1']:.2f} | {row['Median']:.2f} | {row['Q3']:.2f} | {row['Max']:.2f} |")
+    print(
+        f"| {row['Variable']} | {row['Mean']:.2f} | {row['SD']:.2f} | "
+        f"{row['Min']:.2f} | {row['Q1']:.2f} | {row['Median']:.2f} | "
+        f"{row['Q3']:.2f} | {row['Max']:.2f} |"
+    )
 
 # ============================================================================
 # DISCREPANCY REPORT
@@ -240,7 +327,10 @@ for name, reported, computed in discrepancies:
     else:
         tolerance = 0.5
     status = "✓ MATCH" if diff <= tolerance else "✗ UPDATE"
-    print(f"{status:12s} {name:35s}: reported={reported:8.4f}, computed={computed:8.4f}, diff={diff:8.4f}")
+    print(
+        f"{status:12s} {name:35s}: reported={reported:8.4f}, "
+        f"computed={computed:8.4f}, diff={diff:8.4f}"
+    )
 
 print("\n" + "="*80)
 print("END VERIFICATION REPORT")
