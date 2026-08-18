@@ -44,7 +44,7 @@ def load_state_table():
     )
 
 
-def prepare_data(df, nitrate_col="nitrate_rate_per_100k_capita"):
+def prepare_data(df, nitrate_col="nitrate_rate_per_system"):
     # ensure nitrate column exists
     if nitrate_col not in df.columns:
         raise KeyError(f"Missing nitrate column: {nitrate_col}")
