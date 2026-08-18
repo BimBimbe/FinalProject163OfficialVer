@@ -134,22 +134,28 @@ def plot_scatter(data, outdir):
 
 def plot_interaction(data, outdir):
     outdir.mkdir(parents=True, exist_ok=True)
-    # create tercile bins of nitrate_rate
     data = data.copy()
     data["nitrate_bin"] = pd.qcut(
         data["nitrate_rate"], q=3, labels=["low", "med", "high"]
     )
+
     plt.figure(figsize=(8, 6))
-    sns.lineplot(
-        x="pesticide_intensity", y="overall_rate", hue="nitrate_bin",
-        data=data, estimator="mean"
-    )
+    colors = {"low": "tab:blue", "med": "tab:orange", "high": "tab:green"}
+
+    for label, group in data.groupby("nitrate_bin"):
+        sns.regplot(
+            x="pesticide_intensity", y="overall_rate", data=group,
+            scatter=False, ci=None, label=label, color=colors[label]
+        )
+
     plt.title(
         "Interaction: overall vs pesticide intensity stratified by "
         "nitrate terciles"
     )
     plt.xlabel("Pesticide intensity")
     plt.ylabel("Overall rate")
+    plt.legend(title="nitrate_bin")
+
     p = outdir / "q2_interaction_strata.png"
     plt.savefig(p, bbox_inches="tight", dpi=150)
     plt.close()
