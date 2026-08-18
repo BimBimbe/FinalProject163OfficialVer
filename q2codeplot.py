@@ -133,32 +133,60 @@ def plot_scatter(data, outdir):
 
 
 def plot_interaction(data, outdir):
+    """Plot state-level points and fitted lines by nitrate-rate tercile."""
     outdir.mkdir(parents=True, exist_ok=True)
-    data = data.copy()
-    data["nitrate_bin"] = pd.qcut(
-        data["nitrate_rate"], q=3, labels=["low", "med", "high"]
+
+    plot_data = data.copy()
+    plot_data["nitrate_bin"] = pd.qcut(
+        plot_data["nitrate_rate"],
+        q=3,
+        labels=["low", "med", "high"]
     )
 
-    plt.figure(figsize=(8, 6))
-    colors = {"low": "tab:blue", "med": "tab:orange", "high": "tab:green"}
+    colors = {
+        "low": "tab:blue",
+        "med": "tab:orange",
+        "high": "tab:green"
+    }
 
-    for label, group in data.groupby("nitrate_bin"):
+    plt.figure(figsize=(8, 6))
+
+    for label, group in plot_data.groupby(
+        "nitrate_bin",
+        observed=True
+    ):
         sns.regplot(
-            x="pesticide_intensity", y="overall_rate", data=group,
-            scatter=False, ci=None, label=label, color=colors[label]
+            data=group,
+            x="pesticide_intensity",
+            y="overall_rate",
+            color=colors[str(label)],
+            ci=95,
+            label=str(label),
+            scatter=True,
+            scatter_kws={
+                "s": 35,
+                "alpha": 0.65,
+                "edgecolor": "white",
+                "linewidths": 0.4
+            },
+            line_kws={
+                "linewidth": 2
+            }
         )
 
     plt.title(
-        "Interaction: overall vs pesticide intensity stratified by "
-        "nitrate terciles"
+        "Interaction: overall cancer rate vs. pesticide intensity\n"
+        "stratified by nitrate-rate terciles"
     )
-    plt.xlabel("Pesticide intensity")
-    plt.ylabel("Overall rate")
-    plt.legend(title="nitrate_bin")
+    plt.xlabel("Pesticide-use intensity (average kg / agricultural acre)")
+    plt.ylabel("Overall cancer incidence rate (per 100,000)")
+    plt.legend(title="Nitrate-rate tercile")
+    plt.tight_layout()
 
     p = outdir / "q2_interaction_strata.png"
-    plt.savefig(p, bbox_inches="tight", dpi=150)
+    plt.savefig(p, bbox_inches="tight", dpi=200)
     plt.close()
+
     logging.info(f"Saved {p}")
 
 
