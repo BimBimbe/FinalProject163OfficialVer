@@ -44,7 +44,7 @@ def load_state_table():
     )
 
 
-def prepare_data(df, nitrate_col="nitrate_rate_per_100k_capita"):
+def prepare_data(df, nitrate_col="nitrate_rate_per_system"):
     # ensure nitrate column exists
     if nitrate_col not in df.columns:
         raise KeyError(f"Missing nitrate column: {nitrate_col}")
@@ -113,21 +113,21 @@ def cv_scores(data, n_splits=5):
 
 def plot_scatter(data, outdir):
     outdir.mkdir(parents=True, exist_ok=True)
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(9, 6))
     sns.scatterplot(
         x="pesticide_intensity", y="overall_rate", hue="nitrate_rate",
-        data=data, palette="viridis"
+        data=data, palette="viridis", s=100, alpha=0.7, edgecolors='black', linewidth=0.5
     )
     sns.regplot(
         x="pesticide_intensity", y="overall_rate", data=data,
-        scatter=False, color="red"
+        scatter=False, color="red", linewidth=2.5
     )
-    plt.title("Overall rate vs Pesticide intensity (colored by nitrate rate)")
-    plt.xlabel("Pesticide intensity")
-    plt.ylabel("Overall rate")
-    plt.legend(title="Nitrate rate", loc="best")
+    plt.title("Overall cancer rate vs Pesticide intensity\n(colored by nitrate violation rate)", fontsize=13, fontweight='bold')
+    plt.xlabel("Pesticide-use intensity (kg/acre, 2013–2017)", fontsize=12)
+    plt.ylabel("Overall cancer rate (per 100,000)", fontsize=12)
+    plt.legend(title="Nitrate rate (per system)", loc="best", fontsize=10)
     p = outdir / "q2_scatter_pesticide_overall.png"
-    plt.savefig(p, bbox_inches="tight", dpi=150)
+    plt.savefig(p, bbox_inches="tight", dpi=300)
     plt.close()
     logging.info(f"Saved {p}")
 
@@ -137,22 +137,41 @@ def plot_interaction(data, outdir):
     # create tercile bins of nitrate_rate
     data = data.copy()
     data["nitrate_bin"] = pd.qcut(
-        data["nitrate_rate"], q=3, labels=["low", "med", "high"]
+        data["nitrate_rate"], q=3, labels=["low", "med", "high"], duplicates='drop'
     )
-    plt.figure(figsize=(8, 6))
-    sns.lineplot(
-        x="pesticide_intensity", y="overall_rate", hue="nitrate_bin",
-        data=data, estimator="mean"
-    )
-    plt.title(
-        "Interaction: overall vs pesticide intensity stratified by "
-        "nitrate terciles"
-    )
-    plt.xlabel("Pesticide intensity")
-    plt.ylabel("Overall rate")
+    
+    fig, ax = plt.subplots(figsize=(9, 6))
+    
+    colors = {'low': '#1f77b4', 'med': '#ff7f0e', 'high': '#2ca02c'}
+    for bin_label in ['low', 'med', 'high']:
+        subset = data[data["nitrate_bin"] == bin_label]
+        if len(subset) == 0:
+            continue
+        
+        # Plot points
+        ax.scatter(subset['pesticide_intensity'], subset['overall_rate'],
+                   label=bin_label.capitalize(), color=colors[bin_label], s=100, alpha=0.6, edgecolors='black', linewidth=0.5)
+        
+        # Fit regression line for this subset
+        if len(subset) > 1:
+            x_subset = subset[['pesticide_intensity']].values
+            y_subset = subset['overall_rate'].values
+            from sklearn.linear_model import LinearRegression as LR
+            model_subset = LR().fit(x_subset, y_subset)
+            x_range_subset = np.linspace(subset['pesticide_intensity'].min(), subset['pesticide_intensity'].max(), 50)
+            y_range_subset = model_subset.predict(x_range_subset.reshape(-1, 1))
+            ax.plot(x_range_subset, y_range_subset, color=colors[bin_label], linewidth=2.5, linestyle='-')
+    
+    ax.set_xlabel("Pesticide-use intensity (kg/acre, 2013–2017)", fontsize=12)
+    ax.set_ylabel("Overall cancer rate (per 100,000)", fontsize=12)
+    ax.set_title("Interaction: overall cancer rate vs. pesticide intensity\nstratified by nitrate violation rate tertiles", fontsize=13, fontweight='bold')
+    ax.legend(title="Nitrate rate tertile", fontsize=10, title_fontsize=11, loc="lower right")
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    
     p = outdir / "q2_interaction_strata.png"
-    plt.savefig(p, bbox_inches="tight", dpi=150)
-    plt.close()
+    fig.savefig(p, bbox_inches="tight", dpi=300)
+    plt.close(fig)
     logging.info(f"Saved {p}")
 
 
@@ -161,21 +180,24 @@ def plot_residuals(model, data, outdir, name="model3"):
     fitted = model.fittedvalues
     resid = model.resid
 
-    plt.figure(figsize=(8, 4))
-    plt.subplot(1, 2, 1)
-    plt.scatter(fitted, resid)
-    plt.axhline(0, color='red', linestyle='--')
-    plt.xlabel('Fitted')
-    plt.ylabel('Residuals')
-    plt.title('Residuals vs Fitted')
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+    
+    # Left: residuals vs fitted
+    ax1.scatter(fitted, resid, s=80, alpha=0.6, edgecolors='black', linewidth=0.5, color='steelblue')
+    ax1.axhline(0, color='red', linestyle='--', linewidth=2)
+    ax1.set_xlabel('Fitted values', fontsize=11)
+    ax1.set_ylabel('Residuals', fontsize=11)
+    ax1.set_title('Residuals vs. Fitted Values', fontsize=12, fontweight='bold')
+    ax1.grid(True, alpha=0.3)
 
-    plt.subplot(1, 2, 2)
-    sm.qqplot(resid, line='s', ax=plt.gca())
-    plt.title('QQ plot')
+    # Right: QQ plot
+    sm.qqplot(resid, line='s', ax=ax2, markersize=8)
+    ax2.set_title('Normal Q-Q Plot', fontsize=12, fontweight='bold')
+    ax2.grid(True, alpha=0.3)
 
     p = outdir / f"{name}_residuals.png"
-    plt.savefig(p, bbox_inches="tight", dpi=150)
-    plt.close()
+    fig.savefig(p, bbox_inches="tight", dpi=300)
+    plt.close(fig)
     logging.info(f"Saved {p}")
 
 
@@ -204,6 +226,11 @@ def save_model_scores(models, cv_scores_arr, outpath):
         "r_squared": float(np.mean(cv_scores_arr)),
         "n_obs": len(cv_scores_arr)
     })
+    rows.append({
+        "model": "model3_cv_std",
+        "r_squared": float(np.std(cv_scores_arr)),
+        "n_obs": len(cv_scores_arr)
+    })
     pd.DataFrame(rows).to_csv(outpath, index=False)
     logging.info(f"Saved model scores to {outpath}")
 
@@ -212,18 +239,19 @@ def write_captions(outdir):
     outdir.mkdir(parents=True, exist_ok=True)
     captions = {
         "q2_scatter_pesticide_overall.png": (
-            "Scatter of overall rate vs pesticide intensity, colored by "
-            "nitrate rate. Chosen to show raw relationship and how "
-            "nitrate levels vary across points."
+            "Scatter of overall cancer rate vs pesticide intensity, colored by "
+            "nitrate violation rate (per water system). Fitted regression line shown in red. "
+            "Points colored by the continuous nitrate rate to visualize the relationship."
         ),
         "q2_interaction_strata.png": (
-            "Stratified means of overall rate vs pesticide intensity "
-            "for low/med/high nitrate terciles — visualizes "
-            "interaction effect."
+            "Stratified regression lines of overall cancer rate vs pesticide intensity "
+            "for low/med/high nitrate violation rate tertiles — visualizes "
+            "the interaction effect between pesticide use and nitrate exposure."
         ),
         "model3_residuals.png": (
-            "Residual diagnostics for the combined model to inspect "
-            "normality and heteroskedasticity."
+            "Residual diagnostics for the combined model (pesticide + nitrate + interaction). "
+            "Left panel: residuals vs. fitted values (checking heteroskedasticity). "
+            "Right panel: Q-Q plot (checking normality of residuals)."
         ),
     }
     with open(outdir / "plot_captions.txt", "w", encoding="utf-8") as f:
@@ -238,7 +266,7 @@ def main():
     infl_out = Path("q2_influential.csv")
 
     df = load_state_table()
-    data = prepare_data(df)
+    data = prepare_data(df, nitrate_col="nitrate_rate_per_system")
     m1, m2, m3 = fit_models(data)
     scores = cv_scores(data, n_splits=5)
 
@@ -254,13 +282,21 @@ def main():
     write_captions(outdir)
 
     # print short summary
+    print("\n" + "="*80)
+    print("Q2 MODEL SUMMARY (using nitrate_rate_per_system)")
+    print("="*80)
     print(m1.summary())
+    print("\n" + "="*80)
     print(m2.summary())
+    print("\n" + "="*80)
     print(m3.summary())
+    print("\n" + "="*80)
     print(
         f"5-fold CV R^2 scores (model3 features): "
         f"mean={scores.mean():.4f}, std={scores.std():.4f}"
     )
+    print(f"Individual CV fold scores: {scores}")
+    print("="*80)
 
 
 if __name__ == "__main__":
